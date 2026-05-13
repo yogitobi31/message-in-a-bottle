@@ -1,7 +1,7 @@
 import { useState, type RefObject } from 'react'
 import { mockFoundBottles } from '../data/mockFoundBottles'
 
-export function FoundBottles({ sectionRef }: { sectionRef: RefObject<HTMLElement | null> }) {
+export function FoundBottles({ sectionRef }: { sectionRef: RefObject<HTMLElement> }) {
   const [opened, setOpened] = useState<string | null>(null)
   const [reply, setReply] = useState('')
   const [msg, setMsg] = useState('')
