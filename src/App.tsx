@@ -17,10 +17,10 @@ function App() {
   const [selectedId, setSelectedId] = useState<string>('')
   const [highlightBottleId, setHighlightBottleId] = useState<string>('')
 
-  const composeRef = useRef<HTMLElement | null>(null)
-  const mapRef = useRef<HTMLElement | null>(null)
-  const vaultRef = useRef<HTMLElement | null>(null)
-  const foundRef = useRef<HTMLElement | null>(null)
+  const composeRef = useRef<HTMLElement>(null)
+  const mapRef = useRef<HTMLElement>(null)
+  const vaultRef = useRef<HTMLElement>(null)
+  const foundRef = useRef<HTMLElement>(null)
 
   const hydrated = useMemo(
     () =>
@@ -31,7 +31,7 @@ function App() {
     [bottles],
   )
 
-  const scrollTo = (ref: RefObject<HTMLElement | null>) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const scrollTo = (ref: RefObject<HTMLElement>) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   const onCreate = (form: { title: string; body: string; type: Bottle['type']; startSea: Bottle['startSea']; visibility: Bottle['visibility'] }) => {
     const id = `b_${Date.now()}`

@@ -5,7 +5,7 @@ const types: BottleType[] = ['누군가에게 못 보낸 말', '미래의 나에
 const seas: StartSea[] = ['인천 앞바다', '부산 앞바다', '제주 남쪽 바다', '동해', '남해']
 const visibilities: VisibilityType[] = ['혼자 간직하기', '나중에 누군가 발견 가능']
 
-export function BottleComposer({ onSubmit, sectionRef }: { onSubmit: (form: { title: string; body: string; type: BottleType; startSea: StartSea; visibility: VisibilityType }) => void; sectionRef: RefObject<HTMLElement | null> }) {
+export function BottleComposer({ onSubmit, sectionRef }: { onSubmit: (form: { title: string; body: string; type: BottleType; startSea: StartSea; visibility: VisibilityType }) => void; sectionRef: RefObject<HTMLElement> }) {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [type, setType] = useState<BottleType>(types[0])
