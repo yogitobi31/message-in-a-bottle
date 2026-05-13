@@ -11,6 +11,7 @@ import { loadBottles, loadFoundReplies, saveBottles, saveFoundReplies } from './
 import type { Bottle, ReplyItem } from './types/bottle'
 import { BottleDetailModal } from './components/BottleDetailModal'
 import { mockFoundBottles } from './data/mockFoundBottles'
+import { getBottleArrivalState } from './lib/shoreArrival'
 
 function App() {
   const [started, setStarted] = useState(false)
@@ -30,7 +31,15 @@ function App() {
     () =>
       bottles.map((b) => {
         const drift = getDriftState(b.route, b.createdAt)
-        return { ...b, currentLat: drift.lat, currentLng: drift.lng, status: drift.status }
+        const updated = { ...b, currentLat: drift.lat, currentLng: drift.lng, status: drift.status }
+        const arrival = getBottleArrivalState(updated)
+        return {
+          ...updated,
+          status: arrival.arrivalLabel,
+          arrivalStatus: arrival.arrivalStatus,
+          arrivalZoneId: arrival.nearestZone.id,
+          arrivedAt: arrival.arrived ? (b.arrivedAt ?? new Date().toISOString()) : b.arrivedAt,
+        }
       }),
     [bottles],
   )
@@ -138,7 +147,7 @@ function App() {
       <BottleComposer sectionRef={composeRef} onSubmit={onCreate} />
       <OceanMap sectionRef={mapRef} bottles={hydrated} onOpen={openBottle} highlightBottleId={highlightBottleId} />
       <BottleVault sectionRef={vaultRef} bottles={hydrated} onOpen={openBottle} onDelete={onDelete} onGoWrite={() => scrollTo(composeRef)} />
-      <FoundBottles sectionRef={foundRef} onOpen={openFoundBottle} />
+      <FoundBottles sectionRef={foundRef} onOpen={openFoundBottle} myArrivedBottles={hydrated.filter((b) => b.arrivalStatus === 'arrived')} onOpenMyBottle={openBottle} />
       <BottleDetailModal
         bottle={modalBottle}
         onClose={() => {

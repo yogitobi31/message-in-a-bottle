@@ -10,6 +10,8 @@ export type DriftJournalEntry = {
 }
 
 type DriftJournalInput = {
+  arrivalStatus?: 'drifting' | 'near-shore' | 'arrived'
+
   id: string
   createdAt?: string
   startSea?: StartSea | string
@@ -62,6 +64,9 @@ export function buildDriftJournal(input: DriftJournalInput | Bottle): DriftJourn
   if (elapsedDays >= 2) pushDayEntry(2, '2~3일 후', `느린 흐름을 따라 조금 멀어졌습니다. ${directionTone} 쪽 물살을 타고 있습니다.`)
   if (elapsedDays >= 4) pushDayEntry(4, '4~6일 후', '바다가 아직 이 말을 가지고 있습니다.')
   if (elapsedDays >= 7) pushDayEntry(7, '7일 이상', '아직 아무도 발견하지 못했지만, 병은 계속 떠 있습니다.')
+
+  if (input.arrivalStatus === 'near-shore') pushDayEntry(Math.max(1, elapsedDays), '가까워진 밤', '먼 해안의 빛이 가까워졌습니다.')
+  if (input.arrivalStatus === 'arrived') pushDayEntry(Math.max(1, elapsedDays), '닿은 순간', '해변에 조용히 떠밀려왔습니다.')
 
   return entries
 }
