@@ -4,6 +4,7 @@ import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet'
 import type { Bottle } from '../types/bottle'
 import { getLocationText, getSeaTraceText } from '../lib/geoText'
 import { DRIFT_ENGINE_MODE, getCurrentVectorAtPoint } from '../lib/driftEngine'
+import { shoreZones } from '../data/shoreZones'
 import 'leaflet/dist/leaflet.css'
 
 const trimRoute = (route: Bottle['route']) => route.slice(-6).map((p) => [p.lat, p.lng] as [number, number])
@@ -20,6 +21,13 @@ const bottleIcon = (isNew: boolean) =>
 const CARTO_TILE = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
 const OSM_TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 
+const shoreIcon = L.divIcon({
+  className: 'shore-marker',
+  html: '<span class="shore-marker-core" aria-hidden="true"></span>',
+  iconSize: [10, 10],
+  iconAnchor: [5, 5],
+})
+
 export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { bottles: Bottle[]; onOpen: (id: string) => void; sectionRef: RefObject<HTMLElement>; highlightBottleId: string }) {
   const markerIcons = useMemo(() => new Map(bottles.map((b) => [b.id, bottleIcon(highlightBottleId === b.id)])), [bottles, highlightBottleId])
 
@@ -33,9 +41,20 @@ export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { b
       <p className="map-hint">AI가 답하지 않습니다. 바다가 옮깁니다.</p>
       <p className="map-hint">현재 엔진 모드: {DRIFT_ENGINE_MODE}</p>
       <p className="map-hint">지도 위의 병을 눌러 마지막 흔적을 확인할 수 있습니다.</p>
+      <p className="map-hint">작은 불빛 표시는 언젠가 병이 닿을 수 있는 해변의 암시입니다.</p>
       <MapContainer center={[36, 128]} zoom={6} className="ocean-map" style={{ width: '100%' }}>
         <TileLayer attribution="&copy; OpenStreetMap contributors &copy; CARTO" url={CARTO_TILE} />
         <TileLayer attribution="&copy; OpenStreetMap contributors" url={OSM_TILE} opacity={0.01} />
+        {shoreZones.map((zone) => (
+          <Marker key={zone.id} position={[zone.lat, zone.lng]} icon={shoreIcon}>
+            <Popup className="bottle-popup">
+              <div className="popup-content">
+                <strong>{zone.name}</strong>
+                <p>{zone.description}</p>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
         {bottles.map((b) => (
           <Fragment key={b.id}>
             {b.route.length > 1 && (
@@ -49,7 +68,7 @@ export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { b
               <Popup className="bottle-popup">
                 <div className="popup-content">
                   <strong>{b.title}</strong>
-                  <p>상태: 아직 바다가 가지고 있음</p>
+                  <p>상태: {b.status}</p>
                   <p>감정: {b.emotionalTags.join(' · ')}</p>
                   <p>마지막 흔적: {getSeaTraceText(getCurrentVectorAtPoint(b.currentLat, b.currentLng), getLocationText(b.currentLat, b.currentLng))}</p>
                   <button onClick={() => onOpen(b.id)}>편지 열기</button>

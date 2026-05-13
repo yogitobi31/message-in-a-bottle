@@ -36,4 +36,7 @@ export interface Bottle {
   status: string
   discovered: boolean
   replies: ReplyItem[]
+  arrivedAt?: string
+  arrivalZoneId?: string
+  arrivalStatus?: 'drifting' | 'near-shore' | 'arrived'
 }

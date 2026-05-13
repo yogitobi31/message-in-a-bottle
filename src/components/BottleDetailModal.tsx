@@ -1,6 +1,7 @@
 import { getLocationText, getSeaTraceText } from '../lib/geoText'
 import { getCurrentVectorAtPoint } from '../lib/driftEngine'
 import { buildDriftJournal } from '../lib/driftJournal'
+import { getBottleArrivalState } from '../lib/shoreArrival'
 import type { ReplyItem } from '../types/bottle'
 import { JourneyTimeline } from './JourneyTimeline'
 import { ReplyBox } from './ReplyBox'
@@ -36,6 +37,7 @@ export function BottleDetailModal({
   const placeText = getLocationText(bottle.currentLat, bottle.currentLng)
   const vector = getCurrentVectorAtPoint(bottle.currentLat, bottle.currentLng)
   const lastTrace = bottle.beach ?? getSeaTraceText(vector, placeText)
+  const arrival = getBottleArrivalState({ ...bottle, route: [], visibility: '혼자 간직하기', discovered: false, replies: bottle.replies } as any)
   const driftJournal = buildDriftJournal({ ...bottle, currentVector: vector })
 
   return (
@@ -58,10 +60,14 @@ export function BottleDetailModal({
         </section>
 
         <section className="detail-section">
-          <p>현재 상태: {bottle.status}</p>
+          <p>현재 상태: {arrival.arrivalLabel}</p>
           <p>마지막 흔적: {lastTrace}</p>
           {!bottle.beach && <p>바다의 흔적: {lastTrace}</p>}
           {bottle.beach && <p>도착한 해변: {bottle.beach}</p>}
+          {!bottle.beach && (
+            <p>{arrival.arrivalStatus === 'arrived' ? '도착한 해변' : '가까운 해변'}: {arrival.nearestZone.name}</p>
+          )}
+          {!bottle.beach && <p>{arrival.arrivalDescription}</p>}
         </section>
 
         <JourneyTimeline startSea={bottle.startSea} status={bottle.status} lastTrace={lastTrace} />

@@ -59,3 +59,6 @@ button{background:#1d2c36;color:#fff;border:none;cursor:pointer;transition:.2s o
 .journal-desc{margin-bottom:4px;color:#213743;word-break:keep-all}
 .drift-journal small{color:#7c909d;font-size:.79rem}
 .vault-journal{display:block;color:#4f6a79;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arrival-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;border:1px solid #d3dee6;background:#f4f8fb;color:#4e6776;font-size:.74rem;white-space:nowrap}
+.shore-marker{background:transparent;border:none}
+.shore-marker-core{display:block;width:8px;height:8px;border-radius:50%;background:rgba(105,131,146,.5);box-shadow:0 0 0 2px rgba(224,235,241,.55)}
