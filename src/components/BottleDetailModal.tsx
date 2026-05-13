@@ -1,4 +1,5 @@
-import { getLocationText } from '../lib/geoText'
+import { getLocationText, getSeaTraceText } from '../lib/geoText'
+import { getCurrentVectorAtPoint } from '../lib/driftEngine'
 import type { ReplyItem } from '../types/bottle'
 import { JourneyTimeline } from './JourneyTimeline'
 import { ReplyBox } from './ReplyBox'
@@ -30,7 +31,8 @@ export function BottleDetailModal({
 }) {
   if (!bottle) return null
 
-  const lastTrace = bottle.beach ?? `${getLocationText(bottle.currentLat, bottle.currentLng)}의 느린 해류 근처`
+  const placeText = getLocationText(bottle.currentLat, bottle.currentLng)
+  const lastTrace = bottle.beach ?? getSeaTraceText(getCurrentVectorAtPoint(bottle.currentLat, bottle.currentLng), placeText)
 
   return (
     <div className="overlay" role="dialog" aria-modal="true">
@@ -54,6 +56,7 @@ export function BottleDetailModal({
         <section className="detail-section">
           <p>현재 상태: {bottle.status}</p>
           <p>마지막 흔적: {lastTrace}</p>
+          {!bottle.beach && <p>바다의 흔적: {lastTrace}</p>}
           {bottle.beach && <p>도착한 해변: {bottle.beach}</p>}
         </section>
 

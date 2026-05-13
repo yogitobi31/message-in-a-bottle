@@ -2,7 +2,8 @@ import { Fragment, useMemo, type RefObject } from 'react'
 import L from 'leaflet'
 import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet'
 import type { Bottle } from '../types/bottle'
-import { getLocationText } from '../lib/geoText'
+import { getLocationText, getSeaTraceText } from '../lib/geoText'
+import { DRIFT_ENGINE_MODE, getCurrentVectorAtPoint } from '../lib/driftEngine'
 import 'leaflet/dist/leaflet.css'
 
 const trimRoute = (route: Bottle['route']) => route.slice(-10).map((p) => [p.lat, p.lng] as [number, number])
@@ -28,7 +29,9 @@ export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { b
         <h2>표류 지도</h2>
         <p className="count">현재 표류 중인 병: {bottles.length}개</p>
       </div>
-      <p className="map-note">병들은 아직 실제 해류에 연결되지 않았지만, 가상의 표류 엔진을 따라 천천히 움직입니다.</p>
+      <p className="map-note">지금은 실제 해류 연결 전, 바다의 흐름을 흉내 낸 샘플 표류로 움직이고 있습니다.</p>
+      <p className="map-hint">AI가 답하지 않습니다. 바다가 옮깁니다.</p>
+      <p className="map-hint">현재 엔진 모드: {DRIFT_ENGINE_MODE}</p>
       <p className="map-hint">지도 위의 병을 눌러 마지막 흔적을 확인할 수 있습니다.</p>
       <MapContainer center={[36, 128]} zoom={6} className="ocean-map" style={{ width: '100%' }}>
         <TileLayer attribution="&copy; OpenStreetMap contributors &copy; CARTO" url={CARTO_TILE} />
@@ -46,7 +49,7 @@ export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { b
                   <strong>{b.title}</strong>
                   <p>상태: 아직 바다가 가지고 있음</p>
                   <p>감정: {b.emotionalTags.join(' · ')}</p>
-                  <p>마지막 흔적: {getLocationText(b.currentLat, b.currentLng)}의 느린 해류 근처</p>
+                  <p>마지막 흔적: {getSeaTraceText(getCurrentVectorAtPoint(b.currentLat, b.currentLng), getLocationText(b.currentLat, b.currentLng))}</p>
                   <button onClick={() => onOpen(b.id)}>편지 열기</button>
                 </div>
               </Popup>
