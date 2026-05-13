@@ -21,8 +21,8 @@ export function BottleVault({ bottles, onOpen, onDelete, onGoWrite, sectionRef }
                 <span className="tag-pill">{b.emotionalTags[0] ?? '잔잔함'}</span>
               </header>
               <p className="vault-type">편지 유형: {b.type}</p>
-              <p>현재 상태: 아직 바다가 가지고 있음</p>
-              <p>마지막 흔적: {getLocationText(b.currentLat, b.currentLng)}의 느린 해류 근처</p>
+              <p>지금은 아직 바다가 조용히 이 편지를 품고 있습니다.</p>
+              <p>마지막 흔적은 {getLocationText(b.currentLat, b.currentLng)}의 느린 해류 근처입니다.</p>
               <small>생성일: {new Date(b.createdAt).toLocaleDateString('ko-KR')}</small>
               <div className="row">
                 <button onClick={() => onOpen(b.id)}>편지 열기</button>
