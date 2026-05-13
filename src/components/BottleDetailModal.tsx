@@ -1,5 +1,6 @@
 import { getLocationText, getSeaTraceText } from '../lib/geoText'
 import { getCurrentVectorAtPoint } from '../lib/driftEngine'
+import { buildDriftJournal } from '../lib/driftJournal'
 import type { ReplyItem } from '../types/bottle'
 import { JourneyTimeline } from './JourneyTimeline'
 import { ReplyBox } from './ReplyBox'
@@ -16,6 +17,7 @@ interface DetailBottle {
   currentLng: number
   replies: ReplyItem[]
   beach?: string
+  createdAt?: string
 }
 
 export function BottleDetailModal({
@@ -32,7 +34,9 @@ export function BottleDetailModal({
   if (!bottle) return null
 
   const placeText = getLocationText(bottle.currentLat, bottle.currentLng)
-  const lastTrace = bottle.beach ?? getSeaTraceText(getCurrentVectorAtPoint(bottle.currentLat, bottle.currentLng), placeText)
+  const vector = getCurrentVectorAtPoint(bottle.currentLat, bottle.currentLng)
+  const lastTrace = bottle.beach ?? getSeaTraceText(vector, placeText)
+  const driftJournal = buildDriftJournal({ ...bottle, currentVector: vector })
 
   return (
     <div className="overlay" role="dialog" aria-modal="true">
@@ -61,6 +65,20 @@ export function BottleDetailModal({
         </section>
 
         <JourneyTimeline startSea={bottle.startSea} status={bottle.status} lastTrace={lastTrace} />
+
+        <section className="detail-section">
+          <h4>표류 일지</h4>
+          <p className="detail-sub">병이 지나온 시간을 조용히 기록합니다.</p>
+          <ol className="drift-journal" aria-label="표류 일지">
+            {driftJournal.map((entry) => (
+              <li key={entry.id}>
+                <p className="journal-label">{entry.label}</p>
+                <p className="journal-desc">{entry.description}</p>
+                <small>{entry.dateLabel}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         <section className="detail-section">
           <h4>돌아온 말</h4>

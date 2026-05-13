@@ -116,6 +116,7 @@ function App() {
           currentLng: 0,
           replies: foundReplies[selectedFound.id] ?? [],
           beach: selectedFound.beach,
+          createdAt: new Date().toISOString(),
         }
       : undefined
 
