@@ -16,6 +16,9 @@ const bottleIcon = (isNew: boolean) =>
     popupAnchor: [0, -20],
   })
 
+const CARTO_TILE = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+const OSM_TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+
 export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { bottles: Bottle[]; onOpen: (id: string) => void; sectionRef: RefObject<HTMLElement>; highlightBottleId: string }) {
   const markerIcons = useMemo(() => new Map(bottles.map((b) => [b.id, bottleIcon(highlightBottleId === b.id)])), [bottles, highlightBottleId])
 
@@ -25,16 +28,17 @@ export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { b
         <h2>표류 지도</h2>
         <p className="count">현재 표류 중인 병: {bottles.length}개</p>
       </div>
-      <p className="map-note">병들은 실제 해류 데이터를 연결하기 전까지, 가상의 표류 엔진을 따라 천천히 움직입니다.</p>
-      <p className="map-hint">지도 위의 병을 눌러 현재 상태와 마지막 흔적을 확인할 수 있습니다.</p>
-      <MapContainer center={[36, 128]} zoom={6} style={{ height: 420, width: '100%' }}>
-        <TileLayer attribution="&copy; OpenStreetMap" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <p className="map-note">병들은 아직 실제 해류에 연결되지 않았지만, 가상의 표류 엔진을 따라 천천히 움직입니다.</p>
+      <p className="map-hint">지도 위의 병을 눌러 마지막 흔적을 확인할 수 있습니다.</p>
+      <MapContainer center={[36, 128]} zoom={6} className="ocean-map" style={{ width: '100%' }}>
+        <TileLayer attribution="&copy; OpenStreetMap contributors &copy; CARTO" url={CARTO_TILE} />
+        <TileLayer attribution="&copy; OpenStreetMap contributors" url={OSM_TILE} opacity={0.01} />
         {bottles.map((b) => (
           <Fragment key={b.id}>
             <Polyline
               key={`${b.id}_line`}
               positions={trimRoute(b.route)}
-              pathOptions={{ color: '#6b8698', weight: 1, opacity: 0.28, dashArray: '5 8', lineCap: 'round' }}
+              pathOptions={{ color: '#6f8794', weight: 1, opacity: 0.18, dashArray: '2 8', lineCap: 'round' }}
             />
             <Marker position={[b.currentLat, b.currentLng]} key={b.id} icon={markerIcons.get(b.id)}>
               <Popup className="bottle-popup">
