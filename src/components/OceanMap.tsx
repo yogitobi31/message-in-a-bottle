@@ -6,7 +6,7 @@ import { getLocationText, getSeaTraceText } from '../lib/geoText'
 import { DRIFT_ENGINE_MODE, getCurrentVectorAtPoint } from '../lib/driftEngine'
 import 'leaflet/dist/leaflet.css'
 
-const trimRoute = (route: Bottle['route']) => route.slice(-10).map((p) => [p.lat, p.lng] as [number, number])
+const trimRoute = (route: Bottle['route']) => route.slice(-6).map((p) => [p.lat, p.lng] as [number, number])
 
 const bottleIcon = (isNew: boolean) =>
   L.divIcon({
@@ -38,11 +38,13 @@ export function OceanMap({ bottles, onOpen, sectionRef, highlightBottleId }: { b
         <TileLayer attribution="&copy; OpenStreetMap contributors" url={OSM_TILE} opacity={0.01} />
         {bottles.map((b) => (
           <Fragment key={b.id}>
-            <Polyline
-              key={`${b.id}_line`}
-              positions={trimRoute(b.route)}
-              pathOptions={{ color: '#6f8794', weight: 1, opacity: 0.18, dashArray: '2 8', lineCap: 'round' }}
-            />
+            {b.route.length > 1 && (
+              <Polyline
+                key={`${b.id}_line`}
+                positions={trimRoute(b.route)}
+                pathOptions={{ color: '#7e95a3', weight: 1, opacity: 0.12, dashArray: '1 7', lineCap: 'round' }}
+              />
+            )}
             <Marker position={[b.currentLat, b.currentLng]} key={b.id} icon={markerIcons.get(b.id)}>
               <Popup className="bottle-popup">
                 <div className="popup-content">

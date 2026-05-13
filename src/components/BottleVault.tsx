@@ -1,6 +1,7 @@
 import type { RefObject } from 'react'
 import type { Bottle } from '../types/bottle'
 import { getLocationText } from '../lib/geoText'
+import { buildDriftJournal } from '../lib/driftJournal'
 
 export function BottleVault({ bottles, onOpen, onDelete, onGoWrite, sectionRef }: { bottles: Bottle[]; onOpen: (id: string) => void; onDelete: (id: string) => void; onGoWrite: () => void; sectionRef: RefObject<HTMLElement> }) {
   return (
@@ -14,7 +15,10 @@ export function BottleVault({ bottles, onOpen, onDelete, onGoWrite, sectionRef }
         </div>
       ) : (
         <div className="vault-grid">
-          {bottles.map((b) => (
+          {bottles.map((b) => {
+            const journal = buildDriftJournal(b)
+            const lastJournal = journal[journal.length - 1]
+            return (
             <article key={b.id} className="vault-item">
               <header className="vault-head">
                 <h3>{b.title}</h3>
@@ -24,6 +28,7 @@ export function BottleVault({ bottles, onOpen, onDelete, onGoWrite, sectionRef }
               <p>지금은 아직 바다가 조용히 이 편지를 품고 있습니다.</p>
               <p>마지막 흔적은 {getLocationText(b.currentLat, b.currentLng)}의 느린 해류 근처입니다.</p>
               <small>생성일: {new Date(b.createdAt).toLocaleDateString('ko-KR')}</small>
+              {lastJournal && <small className="vault-journal">{lastJournal.description}</small>}
               <div className="row">
                 <button onClick={() => onOpen(b.id)}>편지 열기</button>
                 <button onClick={() => onDelete(b.id)} className="ghost">
@@ -31,7 +36,8 @@ export function BottleVault({ bottles, onOpen, onDelete, onGoWrite, sectionRef }
                 </button>
               </div>
             </article>
-          ))}
+            )
+          })}
         </div>
       )}
     </section>
