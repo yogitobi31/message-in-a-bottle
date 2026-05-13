@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState, type RefObject } from 'react'
 import { Landing } from './components/Landing'
 import { BottleComposer } from './components/BottleComposer'
 import { OceanMap } from './components/OceanMap'
@@ -15,6 +15,12 @@ function App() {
   const [started, setStarted] = useState(false)
   const [bottles, setBottles] = useState<Bottle[]>(() => loadBottles())
   const [selectedId, setSelectedId] = useState<string>('')
+  const [highlightBottleId, setHighlightBottleId] = useState<string>('')
+
+  const composeRef = useRef<HTMLElement | null>(null)
+  const mapRef = useRef<HTMLElement | null>(null)
+  const vaultRef = useRef<HTMLElement | null>(null)
+  const foundRef = useRef<HTMLElement | null>(null)
 
   const hydrated = useMemo(
     () =>
@@ -25,6 +31,8 @@ function App() {
     [bottles],
   )
 
+  const scrollTo = (ref: RefObject<HTMLElement | null>) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
   const onCreate = (form: { title: string; body: string; type: Bottle['type']; startSea: Bottle['startSea']; visibility: Bottle['visibility'] }) => {
     const id = `b_${Date.now()}`
     const route = generateRoute(id, form.startSea)
@@ -33,7 +41,12 @@ function App() {
     setBottles(next)
     saveBottles(next)
     setSelectedId(id)
+    setHighlightBottleId(id)
     setStarted(true)
+    setTimeout(() => {
+      scrollTo(mapRef)
+      setTimeout(() => setHighlightBottleId(''), 3000)
+    }, 100)
   }
 
   const onDelete = (id: string) => {
@@ -44,7 +57,22 @@ function App() {
 
   const selected = hydrated.find((b) => b.id === selectedId)
 
-  return <Shell>{!started && <Landing onStart={() => setStarted(true)} />}<BottleComposer onSubmit={onCreate} /><OceanMap bottles={hydrated} onOpen={setSelectedId} /><BottleVault bottles={hydrated} onOpen={setSelectedId} onDelete={onDelete} /><FoundBottles /><BottleDetail bottle={selected} /></Shell>
+  return (
+    <Shell>
+      <nav className="top-nav" aria-label="섹션 탐색">
+        <button onClick={() => scrollTo(composeRef)}>편지 쓰기</button>
+        <button onClick={() => scrollTo(mapRef)}>표류 지도</button>
+        <button onClick={() => scrollTo(vaultRef)}>내 병</button>
+        <button onClick={() => scrollTo(foundRef)}>떠밀려온 병</button>
+      </nav>
+      {!started && <Landing onStart={() => { setStarted(true); scrollTo(composeRef) }} />}
+      <BottleComposer sectionRef={composeRef} onSubmit={onCreate} />
+      <OceanMap sectionRef={mapRef} bottles={hydrated} onOpen={setSelectedId} highlightBottleId={highlightBottleId} />
+      <BottleVault sectionRef={vaultRef} bottles={hydrated} onOpen={setSelectedId} onDelete={onDelete} onGoWrite={() => scrollTo(composeRef)} />
+      <FoundBottles sectionRef={foundRef} />
+      <BottleDetail bottle={selected} onClose={() => setSelectedId('')} />
+    </Shell>
+  )
 }
 
 export default App
